@@ -26,7 +26,7 @@ namespace GeneratePdf
             // Adding a new page 
             pdf.AddNewPage();
             Document document = new Document(pdf, PageSize.A4);
-
+            //document.SetMargins(20, 20, 20, 20);
             List<string> commands = new List<string>();
 
             // loop through each of the lines in the input text file
@@ -34,86 +34,96 @@ namespace GeneratePdf
             Style style = new Style();
             Paragraph paragraph = new Paragraph();
             int extra = 0;
-            foreach (string line in File.ReadLines(path))
+            int j = 0;
+            while(j < 10)
             {
-                // check if the string starts with . and so add to the commands and continue
-                string txt = line;
-                if (txt.StartsWith("."))
+                foreach (string line in File.ReadLines(path))
                 {
-                    string[] subs = txt.Split(' ');
-                    if (subs.Length==2)
+                    // check if the string starts with . and so add to the commands and continue
+                    string txt = line;
+                    if (txt.StartsWith("."))
                     {
-                        commands.Add(subs[0].Substring(1));
-                        extra = Convert.ToInt32(subs[1]);
+                        string[] subs = txt.Split(' ');
+                        if (subs.Length == 2)
+                        {
+                            commands.Add(subs[0].Substring(1));
+                            extra = Convert.ToInt32(subs[1]);
+                        }
+                        else
+                        {
+                            commands.Add(txt.Substring(1));
+
+                        }
+                        continue;
                     }
                     else
                     {
-                        commands.Add(txt.Substring(1));
-
+                        commands.Add("text");
                     }
-                    continue;
-                }
-                else
-                {
-                    commands.Add("text");
-                }
 
-                // if not, it is a simple text
-                // switch based on all the commands
-                // apply transformations on the text accordingly
-                for (int i = 0; i < commands.Count; i++)
-                {
-                    if (string.IsNullOrEmpty(commands[i]))
+                    // if not, it is a simple text
+                    // switch based on all the commands
+                    // apply transformations on the text accordingly
+                    for (int i = 0; i < commands.Count; i++)
                     {
-                        continue;
-                    }
-                    
-                    switch (commands[i])
-                    {
-                        case "large":
-                            style = setStyles(PdfFontFactory.CreateFont(StandardFonts.HELVETICA), 35);
-                            break;
-                        case "normal":
-                            style = setStyles(PdfFontFactory.CreateFont(StandardFonts.HELVETICA));
-                            break;
-                        case "paragraph":
-                            document.Add(paragraph);
-                            paragraph = new Paragraph();
-                            paragraph.SetMaxWidth(document.GetPdfDocument().GetDefaultPageSize().GetWidth() - (document.GetLeftMargin() + document.GetRightMargin() + 40));
-                            break;
-                        case "italics":
-                            style = setStyles(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_OBLIQUE));
-                            break;
-                        case "bold":
-                            style = setStyles(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD));
-                            break;
-                        case "regular":
-                            style = setStyles(PdfFontFactory.CreateFont(StandardFonts.HELVETICA));
-                            break;
-                        case "indent":
-                            paragraph.SetMarginLeft(-40 * extra);
-                            break;
-                        case "fill":
-                            //Table table = new Table(UnitValue.CreatePercentArray(1)).UseAllAvailableWidth();
-                            //table.AddCell(paragraph);
-                            paragraph.SetWidth(document.GetPdfDocument().GetDefaultPageSize().GetWidth() - (document.GetLeftMargin() + document.GetRightMargin()));
-                            //paragraph.SetTextAlignment(TextAlignment.JUSTIFIED);
-                            //Console.WriteLine(document.GetLeftMargin() + document.GetRightMargin());
-                            //paragraph.SetMaxWidth(document.GetPdfDocument().GetDefaultPageSize().GetWidth() - (document.GetLeftMargin() + document.GetRightMargin()));
+                        if (string.IsNullOrEmpty(commands[i]))
+                        {
+                            continue;
+                        }
 
-                            break;
-                        case "nofill":
-                            break;
-                        case "text":
-                            paragraph = formatText(line, style, paragraph);
-                            break;
-                        default:
-                            break;
+                        switch (commands[i])
+                        {
+                            case "large":
+                                style = setStyles(PdfFontFactory.CreateFont(StandardFonts.HELVETICA), 35);
+                                break;
+                            case "normal":
+                                style = setStyles(PdfFontFactory.CreateFont(StandardFonts.HELVETICA));
+                                break;
+                            case "paragraph":
+                                document.Add(paragraph);
+                                paragraph = new Paragraph();
+                                paragraph.SetMaxWidth(document.GetPdfDocument().GetDefaultPageSize().GetWidth() - (document.GetLeftMargin() + document.GetRightMargin()));
+                                break;
+                            case "italics":
+                                style = setStyles(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_OBLIQUE));
+                                break;
+                            case "bold":
+                                style = setStyles(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD));
+                                break;
+                            case "regular":
+                                style = setStyles(PdfFontFactory.CreateFont(StandardFonts.HELVETICA));
+                                break;
+                            case "indent":
+                                paragraph.SetMarginLeft(-20 * extra);
+                                break;
+                            case "fill":
+                                //Table table = new Table(UnitValue.CreatePercentArray(1)).UseAllAvailableWidth();
+                                //table.AddCell(paragraph);
+                                //paragraph.SetPaddingRight(0);
+                                paragraph.SetWidth(document.GetPdfDocument().GetDefaultPageSize().GetWidth() - (document.GetLeftMargin() + document.GetRightMargin()));
+                                //paragraph.SetTextAlignment(TextAlignment.JUSTIFIED);
+                                //Console.WriteLine(document.GetLeftMargin() + document.GetRightMargin());
+                                //paragraph.SetMaxWidth(document.GetPdfDocument().GetDefaultPageSize().GetWidth() - (document.GetLeftMargin() + document.GetRightMargin()));
+
+                                break;
+                            case "nofill":
+                                break;
+                            case "text":
+                                paragraph = formatText(line, style, paragraph);
+                                break;
+                            default:
+                                break;
+                        }
+                        commands[i] = string.Empty;
                     }
-                    commands[i] = string.Empty;
+                    // apply the operations on the text until the next line with command
                 }
-                // apply the operations on the text until the next line with command
+
+
+                j++;
             }
+            
+            
             document.Close();
             //Console.ReadLine();
         }
