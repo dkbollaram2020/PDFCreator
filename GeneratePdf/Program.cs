@@ -11,6 +11,7 @@ using System.IO;
 using iText.IO.Font.Constants;
 using iText.Kernel.Font;
 using iText.IO.Font;
+using iText.Kernel.Geom;
 
 namespace GeneratePdf
 {
@@ -24,7 +25,7 @@ namespace GeneratePdf
             PdfDocument pdf = new PdfDocument(writer);
             // Adding a new page 
             pdf.AddNewPage();
-            Document document = new Document(pdf);
+            Document document = new Document(pdf, PageSize.A4);
 
             List<string> commands = new List<string>();
 
@@ -78,6 +79,7 @@ namespace GeneratePdf
                         case "paragraph":
                             document.Add(paragraph);
                             paragraph = new Paragraph();
+                            paragraph.SetMaxWidth(document.GetPdfDocument().GetDefaultPageSize().GetWidth() - (document.GetLeftMargin() + document.GetRightMargin() + 40));
                             break;
                         case "italics":
                             style = setStyles(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_OBLIQUE));
@@ -89,13 +91,18 @@ namespace GeneratePdf
                             style = setStyles(PdfFontFactory.CreateFont(StandardFonts.HELVETICA));
                             break;
                         case "indent":
-                            paragraph.SetMarginLeft(-20 * extra);
+                            paragraph.SetMarginLeft(-40 * extra);
                             break;
                         case "fill":
-                            //Console.WriteLine("Case 1");
+                            //Table table = new Table(UnitValue.CreatePercentArray(1)).UseAllAvailableWidth();
+                            //table.AddCell(paragraph);
+                            paragraph.SetWidth(document.GetPdfDocument().GetDefaultPageSize().GetWidth() - (document.GetLeftMargin() + document.GetRightMargin()));
+                            //paragraph.SetTextAlignment(TextAlignment.JUSTIFIED);
+                            //Console.WriteLine(document.GetLeftMargin() + document.GetRightMargin());
+                            //paragraph.SetMaxWidth(document.GetPdfDocument().GetDefaultPageSize().GetWidth() - (document.GetLeftMargin() + document.GetRightMargin()));
+
                             break;
                         case "nofill":
-                            //Console.WriteLine("Case 2");
                             break;
                         case "text":
                             paragraph = formatText(line, style, paragraph);
@@ -108,6 +115,7 @@ namespace GeneratePdf
                 // apply the operations on the text until the next line with command
             }
             document.Close();
+            //Console.ReadLine();
         }
 
         private static Paragraph formatText(string line, Style style, Paragraph paragraph)
