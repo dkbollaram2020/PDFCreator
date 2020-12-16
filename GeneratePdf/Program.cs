@@ -101,7 +101,7 @@ namespace GeneratePdf
                                 //table.AddCell(paragraph);
                                 //paragraph.SetPaddingRight(0);
                                 paragraph.SetWidth(document.GetPdfDocument().GetDefaultPageSize().GetWidth() - (document.GetLeftMargin() + document.GetRightMargin()));
-                                //paragraph.SetTextAlignment(TextAlignment.JUSTIFIED);
+                                paragraph.SetTextAlignment(TextAlignment.JUSTIFIED);
                                 //Console.WriteLine(document.GetLeftMargin() + document.GetRightMargin());
                                 //paragraph.SetMaxWidth(document.GetPdfDocument().GetDefaultPageSize().GetWidth() - (document.GetLeftMargin() + document.GetRightMargin()));
 
